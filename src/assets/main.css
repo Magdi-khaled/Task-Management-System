@@ -1,0 +1,44 @@
+@import "tailwindcss";
+@config "../../tailwind.config.js";
+
+:root {
+  @apply text-green-500;
+  --colors-green-500: #004d2f;
+  --colors-green-400: #085;
+  --colors-green-300: #00a264;
+  --colors-green-200: #4cd681;
+  --colors-green-100: #c7e6cc;
+  --colors-green-50: #e5fff5;
+  --colors-black-100: #00060c;
+
+  font-family: cursive;
+}
+
+.monoton-regular {
+  font-family: "Monoton", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.container {
+  @apply px-4 sm:px-8;
+}
+
+.spinner {
+  border: 3px solid var(--colors-black-100);
+  border-top: 3px solid transparent;
+  border-bottom: 3px solid transparent;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  animation: spin 1s forwards infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
