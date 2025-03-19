@@ -1,18 +1,23 @@
 <script setup lang="ts">
 import AppButton from './AppButton.vue';
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 import { ref, onMounted, onUnmounted } from 'vue';
-import authStore from '../stores/auth';
+
 
 const router = useRouter();
+const store = useStore();
 const toggleNavigation = ref(true);
 const notSmallScreen = ref(false);
+const spinnerOn = ref(false);
 
+const isLoggedIn = store.getters["auth/isLoggedIn"];
 
 const updateScreen = () => {
     notSmallScreen.value = window.innerWidth > 746;
 }
-onMounted(() => {
+onMounted(async () => {
+    await store.dispatch("auth/fetchUser");
     notSmallScreen.value = window.innerWidth > 746;
     window.addEventListener('resize', updateScreen)
 });
@@ -22,21 +27,23 @@ onUnmounted(() => {
 
 const logout = async () => {
     try {
-        // await authStore.logout();
-        router.push({ name: 'Login' });
+        await store.dispatch("auth/logout");
+        spinnerOn.value = true;
+        setTimeout(() => {
+            spinnerOn.value = false;
+            router.push({ name: 'Login' });
+        }, 2000);
     }
     catch (err) {
         console.error('Error Logout', err);
     }
 }
-
 </script>
 
 <template>
     <div class="px-4 sm:px-8 flex items-center justify-between py-2 border-b-2 border-green-400">
         <!-- Logo -->
         <div class="w-2/12 text-primary flex items-center gap-4">
-            <!-- <img class="aspect-square w-12" src="../assets/media/web-icon.svg" alt=""> -->
             <h1 class="capitalize font-bold text-xl sm:text-2xl lg:text-3xl monoton-regular text-green-500"> TASK system
             </h1>
         </div>
@@ -58,7 +65,7 @@ const logout = async () => {
                             <routerLink :to="{ name: 'Home' }" class="block w-full h-full py-3 md:py-2 ">home
                             </routerLink>
                         </li>
-                        <li
+                        <li v-if="isLoggedIn"
                             class="text-green-400 capitalize font-semibold hover:text-green-500 hover:bg-green-50 hover:md:bg-white duration-100 border-b md:border-b-0 md:border-b-green-300">
                             <routerLink :to="{ name: 'Tasks' }" class="block w-full h-full py-3 md:py-2"> tasks
                             </routerLink>
@@ -80,13 +87,16 @@ const logout = async () => {
                         </li>
                     </ul>
                     <!-- Sign In Button -->
-                    <div class="block md:hidden w-full text-center my-4">
+                    <div v-if="!isLoggedIn" class="block md:hidden w-full text-center my-4">
                         <AppButton @click="router.push({ name: 'Login' })" class="py-[4px]">sign in</AppButton>
                     </div>
                     <!-- Sign Out Button -->
-                    <!-- <div class="block md:hidden w-full text-center">
-                        <AppButton @click="logout" class="py-[4px]">Log out</AppButton>
-                    </div> -->
+                    <div v-else class="block md:hidden w-full text-center my-4">
+                        <AppButton @click="logout" class="py-[4px]" v-model:disabled="spinnerOn">
+                            <p v-if="!spinnerOn">Log out</p>
+                            <p v-else class="spinner m-auto" />
+                        </AppButton>
+                    </div>
                 </nav>
             </div>
         </transition>
@@ -96,14 +106,16 @@ const logout = async () => {
         </button>
 
         <!-- Sign In Button -->
-        <div class="hidden md:block">
+        <div v-if="!isLoggedIn" class="hidden md:block">
             <AppButton @click="router.push({ name: 'Login' })" class="py-[4px]">sign in</AppButton>
         </div>
-
         <!-- Sign Out Button -->
-        <!-- <div class="hidden md:block">
-                <AppButton @click="logout" class="py-[4px]">Log out</AppButton>
-            </div> -->
+        <div v-else class="hidden md:block">
+            <AppButton @click="logout" class="py-[6px] w-full" v-model:disabled="spinnerOn">
+                <p v-if="!spinnerOn">Log out</p>
+                <p v-else class="spinner m-auto" />
+            </AppButton>
+        </div>
     </div>
 </template>
 

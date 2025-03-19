@@ -1,21 +1,55 @@
 <script setup>
-import AppButton from '../../components/AppButton.vue';
-import AppInput from '../../components/AppInput.vue';
+import AppButton from '@/components/AppButton.vue';
+import AppInput from '@/components/AppInput.vue';
+import AppTeleport from '@/components/AppTeleport.vue';
+import { validateFname, validateLname, validateEmail, validatePassword, validateRepeatPassword } from '@/composables/useValidation';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 
-const firstname = ref('');
-const lastname = ref('');
+const router = useRouter();
+const store = useStore();
+const fname = ref('');
+const lname = ref('');
 const email = ref('');
 const password = ref('');
-const confirmPassword = ref('');
+const repeatpassword = ref('');
 const spinnerOn = ref(false);
+const success = ref(false);
+const failed = ref(false);
 
-const signup = () => {
-
-};
+const signup = async () => {
+    try {
+        if (fname.value && lname.value && email.value && password.value && password.value === repeatpassword.value) {
+            spinnerOn.value = true;
+            await store.dispatch("auth/signup", {
+                fname: fname.value, lname: lname.value, email: email.value,
+                password: password.value
+            });
+            setTimeout(() => { success.value = true; spinnerOn.value = false; }, 2000);
+            setTimeout(() => {
+                success.value = false;
+                router.push({ name: 'Login' });
+            }, 4000);
+        }
+        else {
+            failed.value = true;
+            setTimeout(() => { failed.value = false }, 2000);
+        }
+    }
+    catch (err) {
+        console.error(err);
+    }
+}
 </script>
 
 <template>
+    <AppTeleport :show="success" :state="true">
+        <i class="fa-solid fa-check-double"></i> Your Account Created Successfully
+    </AppTeleport>
+    <AppTeleport :show="failed" :state="false">
+        <i class="fa-solid fa-circle-exclamation"></i> All Fields Required
+    </AppTeleport>
     <section class="bg-white">
         <div class="lg:grid lg:min-h-screen lg:grid-cols-12">
             <aside
@@ -40,21 +74,22 @@ const signup = () => {
                         Welcome to Task System
                     </h1>
 
-                    <form @submit.prevent="signup" class="mt-4 grid grid-cols-6 gap-x-6 gap-y-1">
-                        <AppInput label="first name" name="fname" type="text" placeholder="first name"
-                            v-model="firstname" class="col-span-6 sm:col-span-3" />
+                    <form @submit.prevent="" class="mt-4 grid grid-cols-6 gap-x-6 gap-y-1">
+                        <AppInput label="first name" name="fname" type="text" placeholder="first name" v-model="fname"
+                            class="col-span-6 sm:col-span-3" :validator="validateFname" />
 
-                        <AppInput label="last name" name="lname" type="text" placeholder="last name" v-model="lastname"
-                            class="col-span-6 sm:col-span-3" />
+                        <AppInput label="last name" name="lname" type="text" placeholder="last name" v-model="lname"
+                            class="col-span-6 sm:col-span-3" :validator="validateLname" />
 
                         <AppInput label="Email" name="email" type="email" placeholder="email address" v-model="email"
-                            class="col-span-6" />
+                            class="col-span-6" :validator="validateEmail" />
 
-                        <AppInput label="Password" name="password" type="password" placeholder="Password"
-                            v-model="password" class="col-span-6 sm:col-span-3" />
+                        <AppInput label="Password" name="password" type="password" placeholder="password"
+                            v-model="password" class="col-span-6 sm:col-span-3" :validator="validatePassword" />
 
-                        <AppInput label="Password Confirmation" name="repeatPassword" type="password"
-                            placeholder="Password" v-model="confirmPassword" class="col-span-6 sm:col-span-3" />
+                        <AppInput label="Password Confirmation" name="repeatpassword" type="password"
+                            placeholder="repeat password" v-model="repeatpassword" class="col-span-6 sm:col-span-3"
+                            :validator="validateRepeatPassword" />
 
                         <div class="col-span-6">
                             <p class="text-sm text-gray-500">
@@ -66,9 +101,10 @@ const signup = () => {
                         </div>
 
                         <div class="col-span-6 sm:flex sm:items-center sm:gap-4">
-                            <AppButton class="w-full sm:w-4/12 text-center">
+                            <AppButton @click="signup" class="w-full sm:w-4/12 text-center"
+                                v-model:disabled="spinnerOn">
                                 <p v-if="!spinnerOn">create an account</p>
-                                <span v-else class="spinnerOn border-2 border-[#fff] m-auto size-7 rounded-full" />
+                                <p v-else class="spinner m-auto" />
                             </AppButton>
 
                             <p class="mt-4 text-sm text-gray-500 sm:mt-0">

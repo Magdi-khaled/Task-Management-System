@@ -1,14 +1,14 @@
 <script setup>
-import AppButton from '../../components/AppButton.vue';
-import AppInput from '../../components/AppInput.vue';
-import AppTeleport from '../../components/AppTeleport.vue';
-import { validateEmail, validatePassword } from '../../composables/useValidation';
-
+import AppButton from '@/components/AppButton.vue';
+import AppInput from '@/components/AppInput.vue';
+import AppTeleport from '@/components/AppTeleport.vue';
+import { validateEmail, validatePassword } from '@/composables/useValidation';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 
 const router = useRouter();
-
+const store = useStore();
 const failed = ref(false);
 const email = ref('');
 const password = ref('');
@@ -17,16 +17,19 @@ const rememberme = ref(false);
 
 const login = async () => {
     try {
-        // await authStore.login(email.value,password.value);
-        // if (authStore.isLoggedIn) {
-        // console.log('isAuthenticated', authStore.isLoggedIn);
-        spinnerOn.value = true
-        await setTimeout(() => { router.push({ name: 'Home' }) }, 2500);
-        // }
-        // else {
-        // failed.value = true;
-        // setTimeout(() => { failed.value = false }, 2000);
-        // }
+        await store.dispatch("auth/login", { email: email.value, password: password.value });
+        spinnerOn.value = true;
+        setTimeout(() => {
+            spinnerOn.value = false;
+
+            if (store.getters["auth/isLoggedIn"]) {
+                console.log('isAuthenticated', store.getters["auth/isLoggedIn"]);
+                setTimeout(() => { router.push({ name: 'Home' }) }, 500);
+            } else {
+                failed.value = true;
+                setTimeout(() => { failed.value = false; }, 4000);
+            }
+        }, 2000);
     }
     catch (err) {
         console.error(err);
@@ -42,7 +45,7 @@ const login = async () => {
         <div class="lg:grid lg:min-h-screen lg:grid-cols-12">
             <aside
                 class="relative hidden lg:block h-16 lg:h-full lg:order-last lg:col-span-5 xl:col-span-6 border-l border-l-secondary">
-                <img alt="Auth-Img" src="../../assets/media/auth.png"
+                <img alt="Auth-Img" src="@/assets/media/auth.png"
                     class="absolute inset-0 h-full w-full object-cover grayscale[1]" />
             </aside>
 

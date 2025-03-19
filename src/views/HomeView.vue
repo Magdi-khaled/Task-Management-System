@@ -18,7 +18,7 @@ const router = useRouter();
             Stay organized and boost productivity with our single-page application.
         </p>
         <AppButton @click="router.push({ name: 'Tasks' })"
-            class="mt-8 w-10/12 sm:w-5/12 md:w-3/12 lg:w-2/12 flex gap-2 justify-center items-center hover:gap-4 transition duration-300">
+            class="mt-8 w-10/12 sm:w-5/12 md:w-3/12 lg:w-2/12 flex gap-2 justify-center items-center hover:gap-4  transition-all duration-300">
             get started <i class="fa-solid fa-arrow-right"></i>
         </AppButton>
     </main>

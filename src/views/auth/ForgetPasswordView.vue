@@ -1,17 +1,49 @@
-<script setup lang="ts">
+<script setup>
 import AppButton from '../../components/AppButton.vue';
 import AppInput from '../../components/AppInput.vue';
+import AppTeleport from '@/components/AppTeleport.vue';
+import { validateEmail } from '@/composables/useValidation';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 
-const email = ref<string>('');
-const newPassword = ref<string>('');
-const confirmPassword = ref<string>('');
-const spinnerOn = ref<boolean>(false);
+const router = useRouter();
+const store = useStore();
+const email = ref('');
+const spinnerOn = ref(false);
+const failed = ref(false);
 
+const newPassword = ref('');
+const confirmPassword = ref('');
+
+// Not Full Code
+const searchForAccount = async () => {
+    try {
+        if (email.value) {
+            spinnerOn.value = true;
+            // await store.dispatch("auth/resetPassword", {
+            //     email: email.value
+            // });
+            setTimeout(() => { spinnerOn.value = false; }, 3000);
+            // setTimeout(() => {
+            //     router.push({ name: 'Login' });
+            // }, 4000);
+        }
+        else {
+            failed.value = true;
+            setTimeout(() => { failed.value = false }, 2000);
+        }
+    }
+    catch (err) {
+        console.error(err);
+    }
+}
 </script>
 
 <template>
-
+    <AppTeleport :show="failed" :state="false">
+        <i class="fa-solid fa-circle-exclamation"></i> Email not Found
+    </AppTeleport>
     <section class="bg-white">
         <div class="lg:grid lg:min-h-screen lg:grid-cols-12">
             <aside
@@ -34,12 +66,13 @@ const spinnerOn = ref<boolean>(false);
                         task system reset password
                     </h1>
 
-                    <form @submit.prevent="" class="grid gap-y-4 my-4">
+                    <form @submit.prevent="searchForAccount" class="grid gap-y-4 my-4">
                         <AppInput label="Email" name="email" type="email" placeholder="email address" v-model="email"
-                            class="col-span-6" />
-                        <AppButton class="col-span-6">
+                            class="col-span-6" :validator="validateEmail" />
+
+                        <AppButton class="col-span-6" v-model:disabled="spinnerOn">
                             <p v-if="!spinnerOn">search</p>
-                            <div v-else class="spinnerOn border-2 border-[#fff] m-auto rounded-full" />
+                            <p v-else class="spinner m-auto" />
                         </AppButton>
                     </form>
                 </div>

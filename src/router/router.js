@@ -5,6 +5,8 @@ import SignupView from "@/views/auth/SignupView.vue";
 import ForgetPasswordView from "@/views/auth/ForgetPasswordView.vue";
 import TasksView from "@/views/TasksView.vue";
 import TaskInfoView from "@/views/TaskInfoView.vue";
+import AddTaskView from "@/views/AddTaskView.vue";
+import { isAuthenticated } from "@/composables/useAuth";
 
 const routes = [
     {
@@ -34,18 +36,27 @@ const routes = [
     {
         path: '/user/tasks',
         name: 'Tasks',
-        component: TasksView
+        component: TasksView,
+        meta: {
+            requiresAuth: true
+        }
     },
     {
         path: '/user/tasks/taskinfo/:id',
         name: 'TaskDetails',
-        component: TaskInfoView
+        component: TaskInfoView,
+        meta: {
+            requiresAuth: true
+        }
     },
-    // {
-    //     path: '/user/tasks/editinfo/:id',
-    //     name: 'EditTask',
-    //     component: TaskInfoView
-    // }
+    {
+        path: '/user/tasks/add-task',
+        name: 'AddTask',
+        component: AddTaskView,
+        meta: {
+            requiresAuth: true
+        }
+    }
 ];
 
 const router = createRouter({
@@ -54,11 +65,9 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    // const userRole = getUserRole();
-    // const isLoggedIn = isAuthenticated();
+    const isLoggedIn = isAuthenticated();
 
-    // if (to.meta.requiresAuth && !isLoggedIn) {
-    if (to.meta.requiresAuth) {
+    if (to.meta.requiresAuth && !isLoggedIn) {
         return next({ name: "Login" });
     }
 

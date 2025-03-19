@@ -2,17 +2,14 @@ export const tasks = [
     {
         id: 1,
         title: 'task 1',
-        description: 'task 1 description.....',
-        status: false,
+        description: 'Task 1 description.....',
+        status: 'done',
+        created_at: '05-25-2025',
     }, {
         id: 2,
         title: 'task 2',
-        description: 'task 2 description.....',
-        status: false,
-    }, {
-        id: 3,
-        title: 'task 3',
-        description: 'task 3 description.....',
-        status: true,
+        description: 'Task 2 description.....',
+        status: 'pending',
+        created_at: '05-25-2025',
     },
 ]
